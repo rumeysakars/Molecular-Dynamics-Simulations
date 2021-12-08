@@ -1,0 +1,14 @@
+gmx pdb2gmx -f protein.pdb -o protein.gro -p protein.top -ignh
+gmx editconf -f protein.gro -o protein-PBC.gro -bt dodecahedron -d 1.0
+tail -1 protein-PBC.gro
+gmx grompp -f minim.mdp -c protein-PBC.gro -p protein.top -o protein-EM-vacuum.tpr -maxwarn 1
+gmx mdrun -v -deffnm protein-EM-vacuum -c protein-EM-vacuum.pdb -nt 1
+gmx trjconv -s protein-EM-vacuum.tpr -f protein-PBC.gro -o protein-from-PDB.pdb
+vmd protein-from-PDB.pdb protein-EM-vacuum.pdb
+gmx energy -f protein-EM-vacuum.edr -o potential-energy-EM.xvg
+gmx grompp -v -f minim.mdp -c protein-water.pdb -p protein.top -o protein-water.tpr -maxwarn 1
+gmx grompp -v -f nvt.mdp -c protein-PR.gro -p protein.top -o protein-NVT.tpr -maxwarn 1
+gmx grompp -v -f npt.mdp -c protein-NVT.gro -p protein.top -o protein-NPT.tpr -maxwarn 1
+1 | 13  % choose any molecule you want to study.
+q
+exit
